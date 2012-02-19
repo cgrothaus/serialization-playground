@@ -1,13 +1,8 @@
 package de.cgrothaus.hessianplayground;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 
-import com.caucho.hessian.io.AbstractHessianOutput;
-import com.caucho.hessian.io.Hessian2Input;
-import com.caucho.hessian.io.HessianSerializerInput;
-import com.caucho.hessian.io.HessianSerializerOutput;
+import com.caucho.hessian.io.*;
 
 import de.cgrothaus.hessianplayground.data.DataClass;
 

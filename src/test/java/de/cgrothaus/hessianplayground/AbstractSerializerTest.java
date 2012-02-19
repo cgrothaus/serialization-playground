@@ -1,11 +1,8 @@
 package de.cgrothaus.hessianplayground;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
-import de.cgrothaus.hessianplayground.data.MediumDataClass;
-import de.cgrothaus.hessianplayground.data.SmallDataClass;
+import de.cgrothaus.hessianplayground.data.*;
 
 public abstract class AbstractSerializerTest {
 
@@ -47,7 +44,7 @@ public abstract class AbstractSerializerTest {
 	}
 	
 	@Test
-	public void serializeSmallMediumClass() {
+	public void serializeMediumDataClass() {
 		byte[] serialized = serializer.serialize(MediumDataClass.randomInstance());
 		System.out.println("serializing a random MediumDataClass yields a byte array of size " + serialized.length + " with serializer " + serializer.getClass().getSimpleName());
 	}
@@ -60,5 +57,34 @@ public abstract class AbstractSerializerTest {
 		Assert.assertEquals(orig, deserialized);
 	}
 	
+	@Test
+	public void testLargeDataClassEquals() {
+		LargeDataClass ldc1 = new LargeDataClass("foo", "bar", "baz", "abc", "xyz", -1, 0, 1, -100, 1000, -10000);
+		LargeDataClass ldc1a = LargeDataClass.randomSingleInstance();
+		ldc1.getListChildren().add(ldc1a);
+		LargeDataClass ldc1b = LargeDataClass.randomSingleInstance();
+		ldc1.getMappedChildren().put("myKey", ldc1b);
+		
+		LargeDataClass ldc2 = new LargeDataClass("foo", "bar", "baz", "abc", "xyz", -1, 0, 1, -100, 1000, -10000);
+		LargeDataClass ldc2a = new LargeDataClass(ldc1a);
+		ldc2.getListChildren().add(ldc2a);
+		LargeDataClass ldc2b = new LargeDataClass(ldc1b);
+		ldc2.getMappedChildren().put("myKey", ldc2b);
+		Assert.assertEquals(ldc1, ldc2);
+	}
+	
+	@Test
+	public void serializeLargeDataClass() {
+		byte[] serialized = serializer.serialize(LargeDataClass.randomMultiInstance());
+		System.out.println("serializing a random LargeDataClass sixpack yields a byte array of size " + serialized.length + " with serializer " + serializer.getClass().getSimpleName());
+	}
+
+	@Test
+	public void serializeDeserializeLargeDataClass() {
+		LargeDataClass orig = LargeDataClass.randomMultiInstance();
+		byte[] serialized = serializer.serialize(orig);
+		LargeDataClass deserialized = (LargeDataClass) serializer.deserialize(serialized);
+		Assert.assertEquals(orig, deserialized);
+	}
 
 }
