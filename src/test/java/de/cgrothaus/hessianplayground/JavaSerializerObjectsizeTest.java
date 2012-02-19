@@ -1,6 +1,6 @@
 package de.cgrothaus.hessianplayground;
 
-public class JavaSerializerTest extends AbstractSerializerTest {
+public class JavaSerializerObjectsizeTest extends AbstractSerializerObjectsizeTest {
 
 	@Override
 	protected Serializer initSerializer() {
