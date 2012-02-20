@@ -31,7 +31,7 @@ public class SmallDataClass extends DataClass {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + int1;
 		result = prime * result + (int) (long1 ^ (long1 >>> 32));
 		return result;
@@ -41,7 +41,7 @@ public class SmallDataClass extends DataClass {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
@@ -52,5 +52,5 @@ public class SmallDataClass extends DataClass {
 			return false;
 		return true;
 	}
-	
+
 }
