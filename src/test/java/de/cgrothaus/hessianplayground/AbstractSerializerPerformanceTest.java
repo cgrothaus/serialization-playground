@@ -9,88 +9,43 @@ import de.cgrothaus.hessianplayground.data.*;
 
 public abstract class AbstractSerializerPerformanceTest extends AbstractSerializerTest {
 
-	private static final int INITIALIZATION_ROUNDS = 5000;
-	private static final int MEASUREMENT_ROUNDS = 30000;
+	private static final int INITIALIZATION_ROUNDS = 10000;
+	private static final int MEASUREMENT_ROUNDS = 50000;
 
 	@Test
-	public void performanceOfSerializeSmallDataClass1() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
+	public void performanceOfSerializeSmallDataClass() {
+		runPerformanceTest(new Generator() {
 			public DataClass generate() {
 				return SmallDataClass.randomInstance();
 			}
-		}));
-	}
-	
-	@Test
-	public void performanceOfSerializeSmallDataClass2() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
-			public DataClass generate() {
-				return SmallDataClass.randomInstance();
+			public String getTestClassName() {
+				return SmallDataClass.class.getSimpleName();
 			}
-		}));
-	}
-	
-	@Test
-	public void performanceOfSerializeSmallDataClass3() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
-			public DataClass generate() {
-				return SmallDataClass.randomInstance();
-			}
-		}));
-	}
-	
-	@Test
-	public void performanceOfSerializeSmallDataClass4() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
-			public DataClass generate() {
-				return SmallDataClass.randomInstance();
-			}
-		}));
-	}
-	
-	@Test
-	public void performanceOfSerializeMediumDataClass1() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
-			public DataClass generate() {
-				return MediumDataClass.randomInstance();
-			}
-		}));
-	}
-	
-	@Test
-	public void performanceOfSerializeMediumDataClass2() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
-			public DataClass generate() {
-				return MediumDataClass.randomInstance();
-			}
-		}));
+		}, 20);
 	}
 
 	@Test
-	public void performanceOfSerializeMediumDataClass3() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
+	public void performanceOfSerializeMediumDataClass() {
+		runPerformanceTest(new Generator() {
 			public DataClass generate() {
 				return MediumDataClass.randomInstance();
 			}
-		}));
+			public String getTestClassName() {
+				return MediumDataClass.class.getSimpleName();
+			}
+		}, 20);
 	}
 
 	@Test
-	public void performanceOfSerializeLargeDataClass1() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
+	public void performanceOfSerializeLargeDataClass() {
+		runPerformanceTest(new Generator() {
 			public DataClass generate() {
 				return LargeDataClass.randomMultiInstance();
 			}
-		}));
-	}
-	
-	@Test
-	public void performanceOfSerializeLargeDataClass2() {
-		runPerformanceTest(prepareTestInstances(new Generator() {
-			public DataClass generate() {
-				return LargeDataClass.randomMultiInstance();
+			public String getTestClassName() {
+				return LargeDataClass.class.getSimpleName();
 			}
-		}));
+		}, 10);
 	}
 
 	private LinkedList<DataClass> prepareTestInstances(Generator generator) {
@@ -104,18 +59,38 @@ public abstract class AbstractSerializerPerformanceTest extends AbstractSerializ
 			toSerialize.add(generator.generate());
 		}
 		end = System.nanoTime();
-		System.out.println("Preparing " + (INITIALIZATION_ROUNDS + MEASUREMENT_ROUNDS) + " " + toSerialize.getFirst().getClass().getSimpleName()
-				+ " test instances took " + (end - start) + " nanosec. (=" + ((end - start) / 1000000) + " ms)");
+		// System.out.println("Preparing " + (INITIALIZATION_ROUNDS + MEASUREMENT_ROUNDS) + " " + toSerialize.getFirst().getClass().getSimpleName()
+		//		+ " test instances took " + (end - start) + " nanosec. (=" + ((end - start) / 1000000) + " ms)");
 
 		Assert.assertEquals(INITIALIZATION_ROUNDS + MEASUREMENT_ROUNDS, toSerialize.size());
 		return toSerialize;
 	}
 
-	private void runPerformanceTest(LinkedList<DataClass> toSerialize) {
+	private void runPerformanceTest(Generator generator, int numTestRuns) {
+		long sumDur = 0;
+		for (int i = 0; i < numTestRuns; i++) {
+			sumDur += runSinglePerformanceTestRun(generator);
+		}
+		long avgDur = sumDur / numTestRuns;
+
+		System.out.println("Serializing " + MEASUREMENT_ROUNDS + " " + generator.getTestClassName() + " test instances took " + (avgDur)
+				+ " nanosec. (=" + ((avgDur) / 1000000) + " ms) with serializer " + serializer.getClass().getSimpleName() + " (average of " + numTestRuns
+				+ " test runs)");
+		System.out.println("==> that is " + (avgDur) / MEASUREMENT_ROUNDS + " nanosec. per instance");
+
+		System.gc(); // don't let GC affect the next test run
+	}
+
+	/**
+	 * @param generator
+	 *            test data generator
+	 * @return the duration of serializing MEASUREMENT_ROUNDS test instances, in nano sec.
+	 */
+	private long runSinglePerformanceTestRun(Generator generator) {
 		long start = 0;
 		long end;
 		int i = 0;
-		for (DataClass d : toSerialize) {
+		for (DataClass d : prepareTestInstances(generator)) {
 			if (i == INITIALIZATION_ROUNDS) {
 				start = System.nanoTime();
 			}
@@ -124,15 +99,11 @@ public abstract class AbstractSerializerPerformanceTest extends AbstractSerializ
 			i++;
 		}
 		end = System.nanoTime();
-
-		System.out.println("Serializing " + MEASUREMENT_ROUNDS + " " + toSerialize.getFirst().getClass().getSimpleName() + " test instances took "
-				+ (end - start) + " nanosec. (=" + ((end - start) / 1000000) + " ms) with serializer " + serializer.getClass().getSimpleName());
-		System.out.println("==> that is " + (end - start) / MEASUREMENT_ROUNDS + " nanosec. per instance");
-		
-		System.gc(); // don't let GC affect the next test run
+		return end - start;
 	}
 
 	private static interface Generator {
 		public DataClass generate();
+		public String getTestClassName();
 	}
 }
