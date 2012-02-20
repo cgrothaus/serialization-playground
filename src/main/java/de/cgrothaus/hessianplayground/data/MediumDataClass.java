@@ -1,22 +1,28 @@
 package de.cgrothaus.hessianplayground.data;
 
+import java.io.*;
 import java.util.UUID;
 
 public class MediumDataClass extends DataClass {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String string2;
-	private final String string3;
-	private final String string4;
-	private final String string5;
-	private final int int1;
-	private final int int2;
-	private final int int3;
-	private final long long1;
-	private final long long2;
-	private final long long3;
+	private String string2;
+	private String string3;
+	private String string4;
+	private String string5;
+	private int int1;
+	private int int2;
+	private int int3;
+	private long long1;
+	private long long2;
+	private long long3;
 
+	/**
+	 * Empty default constructor
+	 */
+	public MediumDataClass() {};
+	
 	public MediumDataClass(String string1, String string2, String string3,
 			String string4, String string5, int int1, int int2, int int3,
 			long long1, long long2, long long3) {
@@ -140,6 +146,39 @@ public class MediumDataClass extends DataClass {
 		} else if (!string5.equals(other.string5))
 			return false;
 		return true;
+	}
+
+	
+	/*
+	 * ##### Hazelcast DataSerializable #####################################
+	 */
+
+	public void writeData(DataOutput out) throws IOException {
+		super.writeData(out);
+		out.writeUTF(string2);
+		out.writeUTF(string3);
+		out.writeUTF(string4);
+		out.writeUTF(string5);
+		out.writeInt(int1);
+		out.writeInt(int2);
+		out.writeInt(int3);
+		out.writeLong(long1);
+		out.writeLong(long2);
+		out.writeLong(long3);
+	}
+
+	public void readData(DataInput in) throws IOException {
+		super.readData(in);
+		string2 = in.readUTF();
+		string3 = in.readUTF();
+		string4 = in.readUTF();
+		string5 = in.readUTF();
+		int1 = in.readInt();
+		int2 = in.readInt();
+		int3 = in.readInt();
+		long1 = in.readLong();
+		long2 = in.readLong();
+		long3 = in.readLong();
 	}
 
 }

@@ -1,5 +1,6 @@
 package de.cgrothaus.hessianplayground.data;
 
+import java.io.*;
 import java.util.*;
 
 public class LargeDataClass extends MediumDataClass
@@ -10,6 +11,11 @@ public class LargeDataClass extends MediumDataClass
 	private final List<LargeDataClass> listChildren = new ArrayList<LargeDataClass>();
 	private final Map<String, LargeDataClass> mappedChildren = new HashMap<String, LargeDataClass>();
 
+	/**
+	 * Empty default constructor
+	 */
+	public LargeDataClass() {}
+	
 	public LargeDataClass(String string1, String string2, String string3, String string4, String string5, int int1, int int2, int int3, long long1, long long2,
 			long long3, List<LargeDataClass> listChildren, Map<String, LargeDataClass> mappedChildren)
 	{
@@ -110,4 +116,38 @@ public class LargeDataClass extends MediumDataClass
 		return true;
 	}
 	
+	/*
+	 * ##### Hazelcast DataSerializable #####################################
+	 */
+
+	public void writeData(DataOutput out) throws IOException {
+		super.writeData(out);
+		out.writeInt(listChildren.size());
+		for (LargeDataClass listChild : listChildren) {
+			listChild.writeData(out);
+		}
+		out.writeInt(mappedChildren.size());
+		for (Map.Entry<String, LargeDataClass> entry : mappedChildren.entrySet()) {
+			out.writeUTF(entry.getKey());
+			entry.getValue().writeData(out);
+		}
+	}
+
+	public void readData(DataInput in) throws IOException {
+		super.readData(in);
+		int listChildrenSize = in.readInt();
+		for (int i = 0; i < listChildrenSize; i++) {
+			LargeDataClass item = new LargeDataClass();
+			item.readData(in);
+			listChildren.add(item);
+		}
+		int mappedChildrenSize = in.readInt();
+		for (int i = 0; i < mappedChildrenSize; i++) {
+			String key = in.readUTF();
+			LargeDataClass value = new LargeDataClass();
+			value.readData(in);
+			mappedChildren.put(key, value);
+		}
+	}
+
 }

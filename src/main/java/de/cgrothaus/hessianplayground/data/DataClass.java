@@ -1,15 +1,22 @@
 package de.cgrothaus.hessianplayground.data;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.Random;
 
-public abstract class DataClass implements Serializable {
+import de.cgrothaus.hessianplayground.DataSerializable;
+
+public abstract class DataClass implements DataSerializable {
 	
 	private static final long serialVersionUID = 1L;
 
 	protected final static Random random = new Random();
 	
-	private final String string1;
+	private String string1;
+	
+	/**
+	 * Empty default constructor
+	 */
+	public DataClass() {}
 	
 	public DataClass(String string1) {
 		super();
@@ -45,4 +52,16 @@ public abstract class DataClass implements Serializable {
 		return true;
 	}
 
+	/*
+	 * ##### Hazelcast DataSerializable #####################################
+	 */
+
+	public void writeData(DataOutput out) throws IOException {
+		out.writeUTF(string1);
+	}
+
+	public void readData(DataInput in) throws IOException {
+		string1 = in.readUTF();
+	}
+	
 }
