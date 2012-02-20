@@ -49,16 +49,16 @@ public abstract class AbstractSerializerPerformanceTest extends AbstractSerializ
 	}
 
 	private LinkedList<DataClass> prepareTestInstances(Generator generator) {
-		long start;
-		long end;
+		//long start;
+		//long end;
 
 		LinkedList<DataClass> toSerialize = new LinkedList<DataClass>();
 
-		start = System.nanoTime();
+		//start = System.nanoTime();
 		for (int i = 0; i < INITIALIZATION_ROUNDS + MEASUREMENT_ROUNDS; i++) {
 			toSerialize.add(generator.generate());
 		}
-		end = System.nanoTime();
+		//end = System.nanoTime();
 		// System.out.println("Preparing " + (INITIALIZATION_ROUNDS + MEASUREMENT_ROUNDS) + " " + toSerialize.getFirst().getClass().getSimpleName()
 		//		+ " test instances took " + (end - start) + " nanosec. (=" + ((end - start) / 1000000) + " ms)");
 
