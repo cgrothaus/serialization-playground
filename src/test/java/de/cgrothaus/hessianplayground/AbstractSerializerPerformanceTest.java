@@ -67,16 +67,18 @@ public abstract class AbstractSerializerPerformanceTest extends AbstractSerializ
 	}
 
 	private void runPerformanceTest(Generator generator, int numTestRuns) {
-		long sumDur = 0;
+		long sumDurNanos = 0;
 		for (int i = 0; i < numTestRuns; i++) {
-			sumDur += runSinglePerformanceTestRun(generator);
+			sumDurNanos += runSinglePerformanceTestRun(generator);
 		}
-		long avgDur = sumDur / numTestRuns;
+		long avgDurNanos = sumDurNanos / numTestRuns;
+		long avgDurMillis = avgDurNanos / 1000000;
+		long durPerInstanceNanos = avgDurNanos / MEASUREMENT_ROUNDS;
+		long instancesPerSec = 1000000000 / durPerInstanceNanos; // == 1/durPerInstanceNanos * 10^9 
 
-		System.out.println("Serializing " + MEASUREMENT_ROUNDS + " " + generator.getTestClassName() + " test instances took " + (avgDur)
-				+ " nanosec. (=" + ((avgDur) / 1000000) + " ms) with serializer " + serializer.getClass().getSimpleName() + " (average of " + numTestRuns
-				+ " test runs)");
-		System.out.println("==> that is " + (avgDur) / MEASUREMENT_ROUNDS + " nanosec. per instance");
+		System.out.println("Serializing " + MEASUREMENT_ROUNDS + " " + generator.getTestClassName() + " test instances took " + avgDurNanos + " nanosec. (="
+				+ avgDurMillis + " ms) with serializer " + serializer.getClass().getSimpleName() + " (average of " + numTestRuns + " test runs)");
+		System.out.println("==> that is " + durPerInstanceNanos + " nanosec. per instance, or " + instancesPerSec + " instances per sec.");
 
 		System.gc(); // don't let GC affect the next test run
 	}
